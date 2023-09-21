@@ -1,1 +1,1 @@
-﻿ dotnet publish src/BlazorWasmSample.csproj
+﻿ dotnet publish src/BlazorWasmSample.csproj -o release/net7.0
