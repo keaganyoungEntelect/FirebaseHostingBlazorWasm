@@ -1,13 +1,13 @@
 {
   "hosting": {
-    "public": "release/net7.0/wwwroot",
+    "public": "src/bin/Debug/net7.0/publish/wwwroot",
     "ignore": [
       
     ],
     "rewrites": [
       {
         "source": "**",
-        "destination": "release/net7.0/wwwroot/index.html"
+        "destination": "src/bin/Debug/net7.0/publish/wwwroot/index.html"
       }
     ]
   }
