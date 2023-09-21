@@ -1,0 +1,14 @@
+{
+  "hosting": {
+    "public": "release/net7.0/wwwroot",
+    "ignore": [
+      
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "release/net7.0/wwwroot/index.html"
+      }
+    ]
+  }
+}
