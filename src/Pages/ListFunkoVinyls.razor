@@ -5,18 +5,40 @@
 @using System.Diagnostics;
 @inject HttpClient Http
 
-<h2>Find a Funko</h2>
-@if (funkoPops != null)
-{
-    @foreach (FunkoPops funko in funkoPops)
-    {
-        <p>@funko.title</p>
-    }
-}
-else
-{
-    <p>Loading Funko data...</p>
-}
+<h1 class="text-center">Find a Funko</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        @if (funkoPops != null)
+        {
+            @foreach (FunkoPops funko in funkoPops)
+            {
+                <div class="col-md-3 mb-3">
+                    <div class="border border-secondary p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <h3>@System.Net.WebUtility.HtmlDecode(funko.title)</h3>
+                                <ul>
+                                    @foreach (var series in funko.series)
+                                    {
+                                        <li>@series</li>
+                                    }
+                                </ul>
+                            </div>
+                            <div class="col-4">
+                                <img src="@funko.imageName" alt="@funko.title" class="img-fluid" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        }
+        else
+        {
+            <p>Loading Funko data...</p>
+        }
+    </div>
+</div>
 
 @code {
     private FunkoPops[] funkoPops;
@@ -30,7 +52,7 @@ else
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading Funko data: {ex}");
-            funkoPops = new FunkoPops[0]; // Initialize as an empty array or handle error state appropriately
+            funkoPops = new FunkoPops[0];
         }
     }
 }
