@@ -1,0 +1,39 @@
+﻿@page "/ListFunkoVinyls"
+@using BlazorWasmSample.wwwroot.Data;
+<PageTitle>Funkos</PageTitle>
+@using System.Text.Json;
+@using System.Diagnostics;
+@using Services;
+@inject JsonDataService JsonDataService
+@inject HttpClient Http
+
+<h2>Find a Funko</h2>
+@if (funkoPops != null)
+{
+    @foreach (FunkoPops funko in funkoPops)
+    {
+        <p>@funko.title</p>
+    }
+}
+else
+{
+    <p>Loading Funko data...</p>
+}
+
+@code {
+    private FunkoPops[] funkoPops;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            funkoPops = await Http.GetFromJsonAsync<FunkoPops[]>("Data/funko_vinyls.json");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading Funko data: {ex}");
+            funkoPops = new FunkoPops[0]; // Initialize as an empty array or handle error state appropriately
+        }
+    }
+}
+
