@@ -1,0 +1,121 @@
+﻿@page "/API-Example"
+@using BlazorWasmSample.wwwroot.Data
+@using BlazorWasmSample.Services
+@using Newtonsoft.Json
+@using System.Text
+@inject HttpClient Http
+@inject FunkoAPI FunkoAPI
+
+<h3>API Example</h3>
+
+<button @onclick="MakeApiCall">Make API Call</button>
+<p>@MakeApiCallResponse</p>
+<br />
+@foreach (FunkoPops funko in funkoList ?? Enumerable.Empty<FunkoPops>())
+{
+    <p>@funko?.title</p>
+}
+
+<h3>Add Funko</h3>
+
+<input @bind="newFunko.title" placeholder="Title" />
+<input @bind="newFunko.imageName" placeholder="Image URL" />
+<input @bind="newFunko.handle" placeholder="Handle" />
+<input @bind="seriesInput" placeholder="Series"/>
+
+<button @onclick="AddFunkoFromInput">Add Funko</button>
+
+@code {
+    private string? MakeApiCallResponse;
+    private string? GetFunkosResponse;
+    private List<FunkoPops>? funkoList;
+    private string? seriesInput;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetFunkos();
+    }
+
+    private async Task MakeApiCall()
+    {
+        var apiUrl = "https://keagan-funkocollectionapp-default-rtdb.firebaseio.com/Funkos.json";
+
+        var response = await Http.GetAsync(apiUrl);
+
+        if (response.IsSuccessStatusCode)
+        {
+            MakeApiCallResponse = await response.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            MakeApiCallResponse = $"Error: {response.StatusCode}";
+        }
+    }
+
+    private async Task GetFunkos()
+    {
+        var apiUrl = "https://keagan-funkocollectionapp-default-rtdb.firebaseio.com/Funkos.json";
+
+        var response = await Http.GetAsync(apiUrl);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            funkoList = JsonConvert.DeserializeObject<List<FunkoPops>>(jsonResponse);
+
+            if (funkoList?.Count > 0 && funkoList[0] == null)
+            {
+                funkoList.Remove(null);
+            }
+
+            if (funkoList?.Count > 0)
+            {
+                GetFunkosResponse = JsonConvert.SerializeObject(funkoList[0], Formatting.Indented);
+            }
+            else
+            {
+                GetFunkosResponse = "No Funkos found.";
+            }
+        }
+        else
+        {
+            GetFunkosResponse = $"Error: {response.StatusCode}";
+        }
+    }
+
+    private FunkoPops newFunko = new FunkoPops();
+
+    private async Task AddFunkoFromInput()
+    {
+        try
+        {
+            var apiUrl = "https://keagan-funkocollectionapp-default-rtdb.firebaseio.com/Funkos.json";
+            var seriesList = seriesInput?.Split(',').Select(s => s.Trim()).ToList() ?? new List<string>();
+            newFunko.series = seriesList;
+
+            var jsonBody = System.Text.Json.JsonSerializer.Serialize(newFunko);
+            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+            var response = await Http.PostAsync(apiUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Funko added successfully!");
+            }
+            else
+            {
+                Console.WriteLine($"Error: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+    private async Task AddFunkoFromData(FunkoPops givenFunko)
+    {
+        await FunkoAPI.AddFunkoFromData(givenFunko);
+    }
+}

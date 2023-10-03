@@ -1,0 +1,148 @@
+﻿@page "/ListFunkoCollection"
+@using BlazorWasmSample.wwwroot.Data;
+<PageTitle>Vinyls</PageTitle>
+@using System.Text.Json;
+@using System.Diagnostics;
+@using System.Text.Json.Serialization;
+@inject HttpClient Http
+@inject FunkoAPI FunkoAPI
+
+<style>
+    .card {
+        height: 100%;
+    }
+
+    .title {
+        font-weight: bold;
+        font-size: small;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 4em;
+        line-height: 3em;
+    }
+
+    .series {
+        font-weight: lighter;
+        font-size: small;
+    }
+
+    .paging {
+        text-align: center;
+        margin-top: 20px;
+    }
+</style>
+
+<h1 class="text-center">Find a Funko</h1>
+<div class="container">
+
+    <div class="paging">
+        <button class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
+        <span>@($"Page {@currentPage} of {@totalPages}")</span>
+        <button class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
+    </div>
+    <br />
+
+    <div class="row justify-content-center">
+        @if (pagedFunkoPops != null && pagedFunkoPops.Any())
+        {
+            @foreach (var funko in pagedFunkoPops)
+            {
+                <div class="col-md-3 mb-3">
+                    <div class="card border border-secondary position-relative">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-8">
+                                    <p class="title">@System.Net.WebUtility.HtmlDecode(funko?.title)</p>
+                                    @if (funko != null && funko.series != null)
+                                    {
+                                        <ul>
+                                            @foreach (var series in funko.series)
+                                            {
+                                                <li class="series">@series</li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                                <div class="col-4">
+                                    <img src="@funko?.imageName" alt="Funko Image Not Available" class="img-fluid" />
+                                    <br />
+                                    <button class="btn btn-success rounded-circle position-absolute" style="bottom: 10px; right: 10px;">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        }
+        else
+        {
+            <p>Loading Funko data...</p>
+        }
+    </div>
+    <br />
+    <div class="paging">
+        <button class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
+        <span>@($"Page {currentPage} of {totalPages}")</span>
+        <button class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
+    </div>
+</div>
+<SaveDialog @ref="saveDialog" />
+
+@code {
+    private SaveDialog? saveDialog;
+    private FunkoPops[] funkoPops = Array.Empty<FunkoPops>();
+    private int itemsPerPage = 50;
+    private int currentPage = 1;
+    private int totalPages => (int)Math.Ceiling((double)funkoPops.Length / itemsPerPage);
+    private bool IsFirstPage => currentPage == 1;
+    private bool IsLastPage => currentPage == totalPages;
+    private List<FunkoPops> collection = new List<FunkoPops>();
+
+    private IEnumerable<FunkoPops> pagedFunkoPops => collection
+        .Skip((currentPage - 1) * itemsPerPage)
+        .Take(itemsPerPage);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var timestamp = DateTime.Now.Ticks;
+            var collectionUrl = $"Data\\funko_collection.json";
+
+            funkoPops = await Http.GetFromJsonAsync<FunkoPops[]>(collectionUrl) ?? Array.Empty<FunkoPops>();
+            collection = await FunkoAPI.GetFunkos();
+            
+            //Http.GetFromJsonAsync<List<FunkoPops>>(collectionUrl) ?? new List<FunkoPops>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading Funko data: {ex}");
+            funkoPops = Array.Empty<FunkoPops>();
+            collection = new List<FunkoPops>();
+        }
+    }
+
+
+
+    private void LoadPreviousPage()
+    {
+        if (!IsFirstPage)
+        {
+            currentPage--;
+        }
+    }
+
+    private void LoadNextPage()
+    {
+        if (!IsLastPage)
+        {
+            currentPage++;
+        }
+    }
+
+    
+
+
+}
