@@ -8,7 +8,6 @@ namespace BlazorWasmSample.Services
     {
         public async Task<List<FunkoPops>> GetFunkos()
         {
-            string GetFunkosResponse;
             List<FunkoPops>? funkoList = new List<FunkoPops>();
             var apiUrl = "https://keagan-funkocollectionapp-default-rtdb.firebaseio.com/Funkos.json";
             HttpClient client = new HttpClient();
@@ -27,7 +26,6 @@ namespace BlazorWasmSample.Services
                 }
                 else
                 {
-                    GetFunkosResponse = "No Funkos found.";
                     return null;
                 }
             }
