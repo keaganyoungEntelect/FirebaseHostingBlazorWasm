@@ -1,9 +1,72 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Home</PageTitle>
+@inject IGlobalVariables GlobalVariables
+@inject PasswordHasher PasswordHasher
+@inject FunkoAPI FunkoAPI
 
-<h1>Final test</h1>
+<h1 class="text-center">Welcome to My Funko Collection</h1>
+<br />
+@if(GlobalVariables.MyGlobalVariable == "Logged In")
+{
+    <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+        <button class="btn btn-primary btn-lg m-2" style="height:30%;width:30%" @onclick="()=> NavCollection()">Collection</button>
+        <button class="btn btn-primary btn-lg m-2" style="height:30%;width:30%" @onclick="()=> NavFunkos()">Explore Funkos</button>
+    </div>
 
-Welcome to your new app.
+}
+else if (GlobalVariables.MyGlobalVariable == "Attempting Login")
+{
+    <p>Logging in...</p>
+}
+else{
+    <div class="login-container">
+        <h2 class="text-center">Login to Your Account</h2>
+        <form>
+            <div class="form-group text-center">
+                <label for="username">Username:</label>
+                <input type="text" @bind="varusername" id="username" class="form-control w-50 mx-auto" />
+            </div>
+            <div class="form-group text-center">
+                <label for="password">Password:</label>
+                <input type="password" @bind="varpassword" id="password" class="form-control w-50 mx-auto" />
+            </div>
+            <button type="button" class="btn btn-primary btn-lg btn-block" @onclick="()=> Login(varusername,varpassword)">Login</button>
+        </form>
+    </div>
+}
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    private string? varusername;
+    private string? varpassword;
+
+    private async Task Login(string? username,string? password)
+    {
+        GlobalVariables.MyGlobalVariable = "Attempting Login";
+        string hashedPassword = await PasswordHasher.HashPassword(password, "gjNHlegg8OfzWQMyFtMIMg==");
+        List<string>? userdetails = new List<string>();
+        userdetails = await FunkoAPI.GetUser();
+
+        if (userdetails[1] == username && userdetails[0] == hashedPassword)
+        {
+            GlobalVariables.MyGlobalVariable = "Logged In";
+            Console.WriteLine("Login Successful"+username+": "+hashedPassword);
+        }
+        else
+        {
+            Console.WriteLine("Incorrect Details");
+        }
+
+    }
+    private async Task NavCollection()
+    {
+        NavigationManager.NavigateTo("/ListFunkoCollection");
+    }
+    private async Task NavFunkos()
+    {
+        NavigationManager.NavigateTo("/ListFunkoVinyls");
+    }
+}

@@ -7,6 +7,7 @@
 @inject HttpClient Http
 @inject FunkoAPI FunkoAPI
 @inject IJSRuntime JSRuntime
+@inject IGlobalVariables GlobalVariables
 
 
 <style>
@@ -138,17 +139,24 @@
 
     private async Task ShowSaveDialog(FunkoPops funko)
     {
-        if (funko.Id == null)
+        if (GlobalVariables.MyGlobalVariable == "Logged In")
         {
-            collection = await FunkoAPI.GetFunkos();
+            if (funko.Id == null)
+            {
+                collection = await FunkoAPI.GetFunkos();
+            }
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Are you sure you want to delete '{funko.title}' from your collection?" }))
+                return;
+
+            await FunkoAPI.RemoveFunko(funko);
+            NavigationManager.NavigateTo("/ListFunkoVinyls");
+            NavigationManager.NavigateTo("/ListFunkoCollection");
         }
-        if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Are you sure you want to delete '{funko.title}' from your collection?" }))
-            return;
-
-        await FunkoAPI.RemoveFunko(funko);
-        NavigationManager.NavigateTo("/ListFunkoVinyls");
-        NavigationManager.NavigateTo("/ListFunkoCollection");
-
+        else
+        {
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"You are currently not logged in and do not have access to this feature!" }))
+                return;
+        }
     }
 
     private async void SaveDialog(FunkoPops funko)

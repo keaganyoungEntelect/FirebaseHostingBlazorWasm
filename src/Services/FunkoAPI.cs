@@ -121,5 +121,34 @@ namespace BlazorWasmSample.Services
                 }
             }
         }
+
+        public async Task<List<string>> GetUser()
+        {
+            List<string>? userdetails = new List<string>();
+            var apiUrl = "https://keagan-funkocollectionapp-default-rtdb.firebaseio.com/Users.json";
+            HttpClient client = new HttpClient();
+
+            var response = await client.GetAsync(apiUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var userDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonResponse);
+
+                if (userDictionary != null)
+                {
+                    userdetails = userDictionary.Values.ToList();
+                    return userdetails;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

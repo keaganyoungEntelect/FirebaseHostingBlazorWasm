@@ -8,6 +8,7 @@
 @inject HttpClient Http
 @inject FunkoAPI FunkoAPI
 @inject IJSRuntime JSRuntime
+@inject IGlobalVariables GlobalVariables
 
 <style>
     .card {
@@ -144,10 +145,19 @@
     }
     private async Task ShowSaveDialog(FunkoPops funko)
     {
-        if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Are you sure you want to add '{funko.title}' to your collection?" }))
-            return;
+        if (GlobalVariables.MyGlobalVariable == "Logged In")
+        {
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Are you sure you want to add '{funko.title}' to your collection?" }))
+                return;
 
-        await FunkoAPI.AddFunkoFromData(funko);
+            await FunkoAPI.AddFunkoFromData(funko);
+        }
+        else
+        {
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"You are currently not logged in and do not have access to this feature!" }))
+                return;
+        }
+
     }
 
     private async void SaveDialog(FunkoPops funko)
