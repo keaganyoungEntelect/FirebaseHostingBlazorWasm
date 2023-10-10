@@ -1,0 +1,110 @@
+﻿@page "/AddFunko"
+@using BlazorWasmSample.wwwroot.Data
+<PageTitle>Add Funkos</PageTitle>
+@using System.Text.Json
+@using System.Diagnostics
+@using System.Text.Json.Serialization
+@inject HttpClient Http
+@inject FunkoAPI FunkoAPI
+@inject IJSRuntime JSRuntime
+@inject IGlobalVariables GlobalVariables
+
+<style>
+    .container {
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .add-series-button {
+        margin-top: 10px;
+    }
+
+    .series-input {
+        margin-bottom: 10px;
+    }
+
+    .h_container {
+        background-color: #cac7c7;
+        border-radius: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+        display: inline-block;
+        width: 35px;
+        height: 35px;
+        text-align: center;
+        line-height: 45px;
+    }
+</style>
+
+<h1 class="text-center" id="fontTesting">Add a Funko to your Collection</h1>
+<div id="fontTesting" class="container">
+    <div class="form-group">
+        <label  for="title">Title:</label>
+        <input type="text" @bind="title" class="form-control" id="title" />
+    </div>
+
+    <div class="form-group">
+        <label for="imageUrl">Image URL:</label>
+        <input type="text" @bind="imageURL" class="form-control" id="imageUrl" />
+    </div>
+    <div class="form-group">
+        <label for="handle">Handle:</label>
+        <input type="text" @bind="handle" class="form-control" id="handle" />
+    </div>
+
+    <div class="form-group">
+        <label for="series">Series:</label>
+        <div class="series-input" id="series">
+            <input type="text" @bind="series" class="form-control" />
+            <button class="btn btn-secondary add-series-button" @onclick="() => AddSeries(series)">Add Series Item</button>
+        </div>
+    </div>
+    <ol>
+        @foreach(string item in seriesList)
+        {
+                <li>@item</li>
+        }
+    </ol>
+
+    <div class="text-center">
+        <button class="btn btn-primary" @onclick="SaveFunko">Save Funko</button>
+    </div>
+</div>
+
+@code {
+    private List<string> seriesList = new List<string>();
+    private string? title;
+    private string? series = "";
+    private string? imageURL;
+    private string? handle;
+
+    public void AddSeries(string item)
+    {
+        if(item != "")
+        {
+            seriesList.Add(item);
+            series = "";
+        }
+    }
+
+    private async void SaveFunko()
+    {
+        if (GlobalVariables.MyGlobalVariable == "Logged In")
+        {
+            FunkoPops newFunko = new FunkoPops();
+            newFunko.title = title;
+            newFunko.handle = handle;
+            newFunko.imageName = imageURL;
+            newFunko.series = seriesList;
+            await FunkoAPI.AddFunkoFromData(newFunko);
+        }
+        else
+        {
+                if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"You are currently not logged in and do not have access to this feature!" }))
+                    return;
+        }
+    }
+}

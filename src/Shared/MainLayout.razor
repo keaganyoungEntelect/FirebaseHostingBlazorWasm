@@ -1,11 +1,12 @@
 ﻿@inherits LayoutComponentBase
+@inject IGlobalVariables GlobalVariables
 
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
-    <main>
+    <main style="background-color:@GlobalVariables.MyColorVariable">
 
         <article class="content px-4">
             @Body

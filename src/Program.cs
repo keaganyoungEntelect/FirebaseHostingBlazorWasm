@@ -17,9 +17,11 @@ await builder.Build().RunAsync();
 public interface IGlobalVariables
 {
     string MyGlobalVariable { get; set; }
+    string MyColorVariable { get; set; }
 }
 
 public class GlobalVariables : IGlobalVariables
 {
     public string MyGlobalVariable { get; set; }
+    public string MyColorVariable { get; set; } = "rgba(185, 208, 240, 1)";
 }

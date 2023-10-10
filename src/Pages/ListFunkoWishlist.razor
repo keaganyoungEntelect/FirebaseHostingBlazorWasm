@@ -1,7 +1,6 @@
-﻿@page "/ListFunkoVinyls"
-@using BlazorWasmSample.Services;
+﻿@page "/ListFunkoWishlist"
 @using BlazorWasmSample.wwwroot.Data;
-<PageTitle>Vinyls</PageTitle>
+<PageTitle>Wishlist</PageTitle>
 @using System.Text.Json;
 @using System.Diagnostics;
 @using System.Text.Json.Serialization;
@@ -9,6 +8,7 @@
 @inject FunkoAPI FunkoAPI
 @inject IJSRuntime JSRuntime
 @inject IGlobalVariables GlobalVariables
+
 
 <style>
     .card {
@@ -54,24 +54,22 @@
             color: red;
         }
 </style>
-<script src="https://kit.fontawesome.com/3929e16ef5.js" crossorigin="anonymous"></script>
-<script src="{% static 'network/functions.js' %}"></script> 
 
-<h1 id="fontTesting" class="text-center">Find a Funko</h1>
+<script src="https://kit.fontawesome.com/3929e16ef5.js" crossorigin="anonymous"></script>
+<script src="{% static 'network/functions.js' %}"></script>
+
+<h1 class="text-center" id="fontTesting">Your Wishlist</h1>
 <div class="container">
-    <div class="form-group">
-        <input id="fontTesting" type="text" class="form-control" @bind="searchPhrase" placeholder="Search by title" />
-    </div>
 
     <div class="paging">
-        <button id="fontTesting" class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
-        <span id="fontTesting">@($"Page {currentPage} of {totalPages}")</span>
-        <button id="fontTesting" class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
+        <button class="btn btn-primary" id="fontTesting" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
+        <span id="fontTesting">@($"Page {@currentPage} of {@totalPages}")</span>
+        <button class="btn btn-primary" id="fontTesting" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
     </div>
     <br />
 
     <div class="row justify-content-center">
-        @if (funkoPops != null && funkoPops.Any())
+        @if (pagedFunkoPops != null && pagedFunkoPops.Any())
         {
             @foreach (var funko in pagedFunkoPops)
             {
@@ -81,15 +79,15 @@
                             <div class="row">
                                 <div class="col-8">
                                     <div class="h_container">
-                                        <i id="heart" class="far fa-heart" @onclick="() => SaveWishlist(funko)"></i>
+                                        <i id="heart" class="far fa-heart" @onclick="() => SaveDialog(funko)"></i>
                                     </div>
-                                    <p id="fontTesting" class="title">@System.Net.WebUtility.HtmlDecode(funko?.title)</p>
+                                    <p class="title" id="fontTesting" style="font-size:larger">@System.Net.WebUtility.HtmlDecode(funko?.title)</p>
                                     @if (funko != null && funko.series != null)
                                     {
                                         <ul>
                                             @foreach (var series in funko.series)
                                             {
-                                                <li id="fontTesting" class="series">@series</li>
+                                                <li class="series" id="fontTesting">@series</li>
                                             }
                                         </ul>
                                     }
@@ -97,57 +95,52 @@
                                 <div class="col-4">
                                     <img src="@funko?.imageName" alt="Funko Image Not Available" class="img-fluid" />
                                     <br />
-                                    <button id="fontTesting" class="btn btn-success rounded-circle position-absolute" style="bottom: 10px; right: 10px;" @onclick="() => SaveDialog(funko)">Add</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             }
+
         }
         else
         {
-            <p>Loading Funko data...</p>
+            <p id="fontCard">Loading Funko data...</p>
         }
     </div>
     <br />
     <div class="paging">
-        <button id="fontTesting" class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
+        <button class="btn btn-primary" id="fontTesting" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
         <span id="fontTesting">@($"Page {currentPage} of {totalPages}")</span>
-        <button id="fontTesting" class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
+        <button class="btn btn-primary" id="fontTesting" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
     </div>
 </div>
 
 @code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
     private FunkoPops[] funkoPops = Array.Empty<FunkoPops>();
     private int itemsPerPage = 50;
     private int currentPage = 1;
-    private int totalPages => (int)Math.Ceiling((double)filteredFunkoPops.Count() / itemsPerPage);
+    private int totalPages => (int)Math.Ceiling((double)funkoPops.Length / itemsPerPage);
     private bool IsFirstPage => currentPage == 1;
     private bool IsLastPage => currentPage == totalPages;
     private List<FunkoPops> collection = new List<FunkoPops>();
-    private string searchPhrase = "";
 
-    private IEnumerable<FunkoPops> pagedFunkoPops => filteredFunkoPops
+    private IEnumerable<FunkoPops> pagedFunkoPops => collection
         .Skip((currentPage - 1) * itemsPerPage)
         .Take(itemsPerPage);
-
-    private IEnumerable<FunkoPops> filteredFunkoPops => funkoPops
-        .Where(funko => string.IsNullOrWhiteSpace(searchPhrase) || funko.title?.IndexOf(searchPhrase, StringComparison.OrdinalIgnoreCase) >= 0)
-        .ToList();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var vinylsUrl = "Data\\funko_vinyls.json";
-
-            funkoPops = await Http.GetFromJsonAsync<FunkoPops[]>(vinylsUrl) ?? Array.Empty<FunkoPops>();
+            collection = await FunkoAPI.GetFunkosWishlist();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading Funko data: {ex}");
-            funkoPops = Array.Empty<FunkoPops>();
             collection = new List<FunkoPops>();
         }
     }
@@ -167,45 +160,30 @@
             currentPage++;
         }
     }
+
     private async Task ShowSaveDialog(FunkoPops funko)
     {
         if (GlobalVariables.MyGlobalVariable == "Logged In")
         {
-            if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Are you sure you want to add '{funko.title}' to your collection?" }))
-                return;
+            if (funko.Id == null)
+            {
+                collection = await FunkoAPI.GetFunkos();
+            }
 
-            await FunkoAPI.AddFunkoFromData(funko);
+            await FunkoAPI.RemoveFunkoWishlist(funko);
+            NavigationManager.NavigateTo("/ListFunkoVinyls");
+            NavigationManager.NavigateTo("/ListFunkoWishlist");
         }
         else
         {
             if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"You are currently not logged in and do not have access to this feature!" }))
                 return;
         }
-
     }
 
     private async void SaveDialog(FunkoPops funko)
     {
         await ShowSaveDialog(funko);
-    }
-
-    private async void SaveWishlist(FunkoPops funko)
-    {
-        await ShowSaveWishlist(funko);
-    }
-
-    private async Task ShowSaveWishlist(FunkoPops funko)
-    {
-        if (GlobalVariables.MyGlobalVariable == "Logged In")
-        {
-            await FunkoAPI.AddFunkoToWishlist(funko);
-        }
-        else
-        {
-            if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"You are currently not logged in and do not have access to this feature!" }))
-                return;
-        }
-
     }
 
 }

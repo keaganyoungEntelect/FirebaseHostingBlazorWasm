@@ -1,6 +1,6 @@
 ﻿@page "/ListFunkoCollection"
 @using BlazorWasmSample.wwwroot.Data;
-<PageTitle>Vinyls</PageTitle>
+<PageTitle>Collection</PageTitle>
 @using System.Text.Json;
 @using System.Diagnostics;
 @using System.Text.Json.Serialization;
@@ -8,7 +8,6 @@
 @inject FunkoAPI FunkoAPI
 @inject IJSRuntime JSRuntime
 @inject IGlobalVariables GlobalVariables
-
 
 <style>
     .card {
@@ -36,13 +35,13 @@
     }
 </style>
 
-<h1 class="text-center">Your Collection</h1>
-<div class="container">
+<h1 id="fontTesting" class="text-center">Your Collection</h1>
+<div class="container" style="background-color:@GlobalVariables.MyColorVariable">
 
     <div class="paging">
-        <button class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
-        <span>@($"Page {@currentPage} of {@totalPages}")</span>
-        <button class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
+        <button id="fontTesting" class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
+        <span id="fontTesting">@($"Page {@currentPage} of {@totalPages}")</span>
+        <button id="fontTesting" class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
     </div>
     <br />
 
@@ -56,13 +55,13 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-8">
-                                    <p class="title">@System.Net.WebUtility.HtmlDecode(funko?.title)</p>
+                                    <p id="fontTesting" class="title">@System.Net.WebUtility.HtmlDecode(funko?.title)</p>
                                     @if (funko != null && funko.series != null)
                                     {
                                         <ul>
                                             @foreach (var series in funko.series)
                                             {
-                                                <li class="series">@series</li>
+                                                <li id="fontTesting" class="series">@series</li>
                                             }
                                         </ul>
                                     }
@@ -70,7 +69,7 @@
                                 <div class="col-4">
                                     <img src="@funko?.imageName" alt="Funko Image Not Available" class="img-fluid" />
                                     <br />
-                                    <button class="btn btn-danger position-absolute" style="bottom: 10px; right: 10px;" @onclick="() => SaveDialog(funko)">Remove</button>
+                                    <button id="fontTesting" class="btn btn-danger position-absolute" style="bottom: 10px; right: 10px;" @onclick="() => SaveDialog(funko)">Remove</button>
                                 </div>
                             </div>
                         </div>
@@ -86,9 +85,9 @@
     </div>
     <br />
     <div class="paging">
-        <button class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
-        <span>@($"Page {currentPage} of {totalPages}")</span>
-        <button class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
+        <button id="fontTesting" class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
+        <span id="fontTesting">@($"Page {currentPage} of {totalPages}")</span>
+        <button id="fontTesting" class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
     </div>
 </div>
 
@@ -110,6 +109,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        
         try
         {
             collection = await FunkoAPI.GetFunkos();
