@@ -16,7 +16,6 @@
 
     .title {
         font-weight: bold;
-        font-size: small;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -36,6 +35,10 @@
 </style>
 
 <h1 id="fontTesting" class="text-center">Your Collection</h1>
+<br />
+<h3 id="fontTesting" class="text-center">Current Collection Value: R @totalValue</h3>
+
+<br />
 <div class="container" style="background-color:@GlobalVariables.MyColorVariable">
 
     <div class="paging">
@@ -50,33 +53,37 @@
         {
             @foreach (var funko in pagedFunkoPops)
             {
+                CalcPrice(funko.price);
                 <div class="col-md-3 mb-3">
                     <div class="card border border-secondary position-relative">
                         <div class="card-body">
+                            <div class="text-center">
+                                <img style="width:auto;height:200px" src="@funko?.imageName" alt="Funko Image Not Available" />
+                            </div>
                             <div class="row">
                                 <div class="col-8">
-                                    <p id="fontTesting" class="title">@System.Net.WebUtility.HtmlDecode(funko?.title)</p>
+                                    <p id="fontTesting" style="font-size:large" class="title">@System.Net.WebUtility.HtmlDecode(funko?.title)</p>
                                     @if (funko != null && funko.series != null)
                                     {
                                         <ul>
                                             @foreach (var series in funko.series)
                                             {
-                                                <li id="fontTesting" class="series">@series</li>
+                                                <li id="fontTesting" class="series">@series</li>                                            
                                             }
                                         </ul>
                                     }
                                 </div>
-                                <div class="col-4">
-                                    <img src="@funko?.imageName" alt="Funko Image Not Available" class="img-fluid" />
-                                    <br />
+                            </div>
+                            <div class="row">
+                                <div class="col-8">
                                     <button id="fontTesting" class="btn btn-danger position-absolute" style="bottom: 10px; right: 10px;" @onclick="() => SaveDialog(funko)">Remove</button>
+                                    <button class="btn btn-primary position-absolute" style="bottom: 50px; right: 10px;" @onclick="() => ShowEditModal(funko)">Edit</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             }
-
         }
         else
         {
@@ -91,6 +98,32 @@
     </div>
 </div>
 
+@if (selectedFunko != null)
+{
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Funko</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="() => CloseEditModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <p>Funko Title: @selectedFunko?.title</p>
+                        <p>Funko Price: @selectedFunko?.price</p>
+                        <input @bind="editPrice" />
+                        <br>
+                        <img src="@selectedFunko?.imageName" style="width:50%;height:50%" alt="Funko Image Not Available" class="img-fluid" />
+                        <br>
+                        <button @onclick="() => SaveEditModal(selectedFunko)">Save</button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Inject]
     private NavigationManager NavigationManager { get; set; }
@@ -102,6 +135,9 @@
     private bool IsFirstPage => currentPage == 1;
     private bool IsLastPage => currentPage == totalPages;
     private List<FunkoPops> collection = new List<FunkoPops>();
+    private int? totalValue = 0;
+    private FunkoPops selectedFunko;
+    private int? editPrice = 0;
 
     private IEnumerable<FunkoPops> pagedFunkoPops => collection
         .Skip((currentPage - 1) * itemsPerPage)
@@ -109,10 +145,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
         try
         {
             collection = await FunkoAPI.GetFunkos();
+            this.StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -164,4 +200,36 @@
         await ShowSaveDialog(funko);
     }
 
+    private void ShowEditModal(FunkoPops funko)
+    {
+        selectedFunko = funko;
+    }
+
+    private void CloseEditModal()
+    {
+        selectedFunko = null;
+    }
+
+    private async void SaveEditModal(FunkoPops funko)
+    {
+        if (GlobalVariables.MyGlobalVariable == "Logged In")
+        {
+            funko.price = editPrice;
+            await FunkoAPI.UpdateFunkoData(funko);
+            NavigationManager.NavigateTo("/ListFunkoVinyls");
+            NavigationManager.NavigateTo("/ListFunkoCollection");
+        }
+        else
+        {
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"You are currently not logged in and do not have access to this feature!" }))
+                return;
+        }
+    }
+    private async void CalcPrice(int? price)
+    {
+        if(price != null && price != 0)
+        {
+            totalValue = totalValue + price;
+        }
+    }
 }

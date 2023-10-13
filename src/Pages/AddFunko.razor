@@ -38,9 +38,10 @@
         line-height: 45px;
     }
 </style>
+<div class="text-center" style="padding-top:20px;padding-bottom:20px;margin-left:10%;margin-right:10%;outline:hidden;border-radius:10px;background-image: url('FreddyFunko5.png'); background-size:cover; background-repeat: no-repeat; color:black;">
 
 <h1 class="text-center" id="fontTesting">Add a Funko to your Collection</h1>
-<div id="fontTesting" class="container">
+<div id="fontTesting" class="container" style="width:90%">
     <div class="form-group">
         <label  for="title">Title:</label>
         <input type="text" @bind="title" class="form-control" id="title" />
@@ -53,6 +54,10 @@
     <div class="form-group">
         <label for="handle">Handle:</label>
         <input type="text" @bind="handle" class="form-control" id="handle" />
+    </div>
+    <div class="form-group">
+        <label for="price">Price:</label>
+        <input type="text" @bind="price" class="form-control" id="price" />
     </div>
 
     <div class="form-group">
@@ -73,13 +78,15 @@
         <button class="btn btn-primary" @onclick="SaveFunko">Save Funko</button>
     </div>
 </div>
+</div>
 
 @code {
     private List<string> seriesList = new List<string>();
-    private string? title;
-    private string? series = "";
-    private string? imageURL;
-    private string? handle;
+    private string? title = "";
+    private string? series;
+    private string? imageURL = "";
+    private string? handle = "";
+    private int? price = null;
 
     public void AddSeries(string item)
     {
@@ -94,12 +101,26 @@
     {
         if (GlobalVariables.MyGlobalVariable == "Logged In")
         {
-            FunkoPops newFunko = new FunkoPops();
-            newFunko.title = title;
-            newFunko.handle = handle;
-            newFunko.imageName = imageURL;
-            newFunko.series = seriesList;
-            await FunkoAPI.AddFunkoFromData(newFunko);
+            if (title != "" || handle != "" || imageURL != "" || seriesList.Count != 0 || price != null )
+            {
+                FunkoPops newFunko = new FunkoPops();
+                newFunko.title = title;
+                newFunko.handle = handle;
+                newFunko.imageName = imageURL;
+                newFunko.series = seriesList;
+                newFunko.price = price;
+                await FunkoAPI.AddFunkoFromData(newFunko);
+                title = "";
+                handle = "";
+                imageURL = "";
+                seriesList.Clear();
+                price = null;
+            }
+            else
+            {
+                if (!await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Please enter valid details for the Funko!" }))
+                    return;
+            }
         }
         else
         {

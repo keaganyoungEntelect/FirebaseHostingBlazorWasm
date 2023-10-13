@@ -7,5 +7,6 @@
         public string? title { get; set; }
         public string? imageName { get; set; }
         public List<string>? series { get; set; }
+        public int? price { get; set; }
     }
 }

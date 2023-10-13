@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components
+@inject IGlobalVariables GlobalVariables
 
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
@@ -19,6 +20,7 @@
 
     protected override void OnInitialized()
     {
+        Console.WriteLine("GlobalVariable: "+ GlobalVariables.MyGlobalVariable);
         NavigationManager.NavigateTo("/");
     }
 }

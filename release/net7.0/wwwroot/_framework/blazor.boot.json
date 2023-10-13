@@ -7,7 +7,7 @@
   "linkerEnabled": true,
   "resources": {
     "assembly": {
-      "BlazorWasmSample.dll": "sha256-+IVkmBoDoR8+DQmUqETq83hZLqPXsI1MzPHrsTTwXyM=",
+      "BlazorWasmSample.dll": "sha256-pdSs7tsMRPqza+m++8aGhg9\/oILDXxc1FChCdRTIElc=",
       "Google.Api.CommonProtos.dll": "sha256-nAnryiVTJBjLGfW3F+mDcHBTBuhqBuD3gB3ZEItLCoA=",
       "Google.Api.Gax.dll": "sha256-zursaPBfn1bE8LP6b4wtGIENqDMOr5fDewFTw4tbC94=",
       "Google.Api.Gax.Grpc.dll": "sha256-M\/Cz9zEpBDfBA\/PKL5RJBNcX5KhTs7SGZmcjh127Mrs=",
@@ -28,7 +28,7 @@
       "Microsoft.AspNetCore.Authentication.Core.dll": "sha256-NP2svkDxlIVJsMiWAmj552NCYo4j7YnOUr2+jkz5+pc=",
       "Microsoft.AspNetCore.Authorization.dll": "sha256-3VCeppe3mTp\/O1tqiMg4Ys3yyk8+aI5C8\/d709bWNjY=",
       "Microsoft.AspNetCore.Authorization.Policy.dll": "sha256-4f7xvTVUxi0h0P0Hci5blPefIu8mspp\/qgcIrxhfvdU=",
-      "Microsoft.AspNetCore.Components.dll": "sha256-vYoX\/o6zNig5bj3CUHmK0NMbiL7LQGt5ZbcMkA\/A1YQ=",
+      "Microsoft.AspNetCore.Components.dll": "sha256-STBkD+oXbx8rdnAbtpQGAvOZmYJbcGztZ4IYOsU4iQM=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-5KBvV9cn\/ZKxtjs2TRBGC\/muX+7rhPw+dqziCQeZeJU=",
       "Microsoft.AspNetCore.Components.WebAssembly.dll": "sha256-LTzbZSlJVCReEItJx4gqKq20S\/Z2zINjOQ7BEok3GDk=",
       "Microsoft.AspNetCore.Hosting.Abstractions.dll": "sha256-4VEnr\/VXawxchLjnFr86t8XA5fF3ZLb61F6I54GBAoQ=",

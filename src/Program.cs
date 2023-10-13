@@ -22,6 +22,6 @@ public interface IGlobalVariables
 
 public class GlobalVariables : IGlobalVariables
 {
-    public string MyGlobalVariable { get; set; }
+    public string MyGlobalVariable { get; set; } = "Logged Out";
     public string MyColorVariable { get; set; } = "rgba(185, 208, 240, 1)";
 }

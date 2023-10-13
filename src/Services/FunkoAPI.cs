@@ -6,6 +6,7 @@ using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Http;
 using Google.Api;
 using System.ComponentModel;
+using System;
 
 namespace BlazorWasmSample.Services
 {
@@ -257,6 +258,34 @@ namespace BlazorWasmSample.Services
             else
             {
                 return null;
+            }
+        }
+
+        public async Task<int?> UpdateFunkoData(FunkoPops updateFunko)
+        {
+            List<FunkoPops>? funkoList = new List<FunkoPops>();
+            var apiUrl = "https://keagan-funkocollectionapp-default-rtdb.firebaseio.com/Funkos/" + updateFunko.Id + ".json";
+            HttpClient client = new HttpClient();
+
+            if (updateFunko.Id == null)
+            {
+                Console.WriteLine("Id is null");
+                return 0;
+            }
+            else
+            {
+                try
+                {
+                    var jsonBody = System.Text.Json.JsonSerializer.Serialize(updateFunko);
+                    var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+                    await client.PutAsync(apiUrl,content);
+                    return updateFunko.price;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    return 0;
+                }
             }
         }
     }
