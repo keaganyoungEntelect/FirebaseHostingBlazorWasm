@@ -2,46 +2,32 @@
 using System.Text;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Http;
-using Google.Api;
-using System.ComponentModel;
-using System;
 
 namespace BlazorWasmSample.Services
 {
-    public class FunkoAPI
+    
+    public class FunkoAPI                                                                                     
     {
         [Inject]
         private NavigationManager? NavigationManager { get; set; }
+        public HttpClient HttpClient { get; set; }
+        public IHttpService HttpService { get; set; }
+
+        public FunkoAPI(HttpClient httpClient, IHttpService httpService)
+        {
+            HttpClient = httpClient;
+            HttpService = httpService;
+        }
+
         public async Task<List<FunkoPops>> GetFunkos()
         {
             await CheckIDs();
-            List<FunkoPops>? funkoList = new List<FunkoPops>();
             var apiUrl = "https://keagan-funkocollectionapp-default-rtdb.firebaseio.com/Funkos.json";
-            HttpClient client = new HttpClient();
 
-            var response = await client.GetAsync(apiUrl);
+            FunkoService funkoService = new FunkoService(HttpService);
+            List<FunkoPops> result = await funkoService.GetFunkos(apiUrl);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                var funkoDictionary = JsonConvert.DeserializeObject<Dictionary<string, FunkoPops>>(jsonResponse);
-
-                if (funkoDictionary != null)
-                {
-                    funkoList = funkoDictionary.Values.ToList();
-                    return funkoList;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
-            }
+            return result;
         }
 
         public async Task<List<FunkoPops>> GetFunkosWishlist()
@@ -49,29 +35,11 @@ namespace BlazorWasmSample.Services
             await CheckIDsWishlist();
             List<FunkoPops>? funkoList = new List<FunkoPops>();
             var apiUrl = "https://keagan-funkocollectionapp-default-rtdb.firebaseio.com/Wishlist.json";
-            HttpClient client = new HttpClient();
 
-            var response = await client.GetAsync(apiUrl);
+            FunkoService funkoService = new FunkoService(HttpService);
+            List<FunkoPops> result = await funkoService.GetFunkosWishlist(apiUrl);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                var funkoDictionary = JsonConvert.DeserializeObject<Dictionary<string, FunkoPops>>(jsonResponse);
-
-                if (funkoDictionary != null)
-                {
-                    funkoList = funkoDictionary.Values.ToList();
-                    return funkoList;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
-            }
+            return result;
         }
 
         public async Task AddFunkoFromData(FunkoPops givenFunko)

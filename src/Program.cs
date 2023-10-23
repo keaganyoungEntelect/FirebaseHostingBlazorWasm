@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BlazorWasmSample;
-using System.Net;
 using BlazorWasmSample.Services;
 using Google.Api;
 
@@ -13,6 +12,8 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<FunkoAPI>();
 builder.Services.AddScoped<PasswordHasher>();
 builder.Services.AddSingleton<IGlobalVariables, GlobalVariables>();
+builder.Services.AddSingleton<IHttpService, HttpClientService>();
+
 await builder.Build().RunAsync();
 public interface IGlobalVariables
 {

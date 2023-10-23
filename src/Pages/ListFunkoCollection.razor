@@ -227,9 +227,23 @@
     }
     private async void CalcPrice(int? price)
     {
-        if(price != null && price != 0)
-        {
-            totalValue = totalValue + price;
+            if (price != null && price != 0)
+            {
+                totalValue = 0;
+
+                foreach (var funko in collection)
+                {
+                    if (funko.price != null && funko.price != 0)
+                    {
+                        totalValue += funko.price;
+                    }
+                }
+
+                if (selectedFunko != null && selectedFunko.price != null && selectedFunko.price != 0)
+                {
+                    totalValue += selectedFunko.price;
+                }
         }
+
     }
 }
