@@ -41,7 +41,7 @@
 <br />
 <div class="container" style="background-color:@GlobalVariables.MyColorVariable">
 
-    <div class="paging">
+    <div class="paging" style="visibility:hidden">
         <button id="fontTesting" class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
         <span id="fontTesting">@($"Page {@currentPage} of {@totalPages}")</span>
         <button id="fontTesting" class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
@@ -91,7 +91,7 @@
         }
     </div>
     <br />
-    <div class="paging">
+    <div class="paging" style="visibility:hidden">
         <button id="fontTesting" class="btn btn-primary" disabled="@IsFirstPage" @onclick="LoadPreviousPage">Previous</button>
         <span id="fontTesting">@($"Page {currentPage} of {totalPages}")</span>
         <button id="fontTesting" class="btn btn-primary" disabled="@IsLastPage" @onclick="LoadNextPage">Next</button>
@@ -129,7 +129,7 @@
     private NavigationManager NavigationManager { get; set; }
 
     private FunkoPops[] funkoPops = Array.Empty<FunkoPops>();
-    private int itemsPerPage = 50;
+    private int itemsPerPage = 10000;
     private int currentPage = 1;
     private int totalPages => (int)Math.Ceiling((double)funkoPops.Length / itemsPerPage);
     private bool IsFirstPage => currentPage == 1;
